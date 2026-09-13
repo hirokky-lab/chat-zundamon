@@ -9,7 +9,6 @@ export const EXTERNAL_TOOL_FEATURES = [
   "tasks_read",
   "one_time_reminder",
   "photo_analysis",
-  "work_assist",
   "avatar",
 ] as const;
 
@@ -27,7 +26,6 @@ export const ALL_EXTERNAL_TOOLS_OFF: ExternalToolFlags = Object.freeze({
   tasks_read: false,
   one_time_reminder: false,
   photo_analysis: false,
-  work_assist: false,
   avatar: false,
 });
 
@@ -38,7 +36,6 @@ export const EXTERNAL_TOOL_COST_AREA: Record<ExternalToolFeature, ExternalCostAr
   tasks_read: "calendar",
   one_time_reminder: "notification",
   photo_analysis: "image",
-  work_assist: "work",
   avatar: "avatar",
 };
 
@@ -49,7 +46,6 @@ const EXTERNAL_TOOL_ALLOWED_COST_AREAS: Record<ExternalToolFeature, readonly Ext
   tasks_read: ["calendar"],
   one_time_reminder: ["notification", "storage"],
   photo_analysis: ["image", "storage"],
-  work_assist: ["work"],
   avatar: ["avatar"],
 };
 

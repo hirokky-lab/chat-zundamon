@@ -3,7 +3,7 @@ import {
   createRealtimeClient,
   type RealtimeClient,
 } from "./realtime-client";
-import { CHAT_CONTEXT_TURN_LIMIT, containsForbiddenSecret, parseMemoryRecord, parseProfile, parseRemoteChatSnapshot, parseWebSearchMetadata } from "@yui/domain";
+import { CHAT_CONTEXT_TURN_LIMIT, parseMemoryRecord, parseProfile, parseRemoteChatSnapshot, parseWebSearchMetadata } from "@yui/domain";
 import type {
   AddressingStyle,
   ChatReply,
@@ -64,93 +64,10 @@ export type ProfileApi = {
   save(input: { displayName: string; addressingStyle: AddressingStyle; occupation?: string; region?: string }): Promise<Profile>;
 };
 
-export type DashboardProgress = {
-  connection: "unconnected" | "available" | "unavailable";
-  updates: DashboardProjectionItem[];
-};
-
-export type DashboardProjectionItem = {
-  project: string;
-  requestId: string;
-  shortTitle: string;
-  status: "working" | "review_required" | "on_hold" | "continuation_required" | "completed";
-  currentPhase: "autonomous_execution" | "owner_action_required" | "system_interrupted" | "completed";
-  needsOwnerAction: boolean;
-  updatedAt: string;
-  nextSafeAction: string;
-};
-
-export type DashboardProgressApi = { get(signal?: AbortSignal): Promise<DashboardProgress> };
 export type VisualStylePreferenceApi = {
   get(signal?: AbortSignal): Promise<VisualStylePreference | null>;
   save(style: VisualStyle, expectedRevision: number, signal?: AbortSignal): Promise<VisualStylePreference | null>;
 };
-
-export type WorkAssistMode = "organize" | "task_suggestions" | "draft";
-export type WorkAssistRequest = {
-  requestId: string;
-  conversationId: string;
-  mode: WorkAssistMode;
-  text: string;
-  confirmationToken?: string;
-};
-export type WorkAssistResult = {
-  summary: string;
-  tasks: string[];
-  draft: string | null;
-  workplacePolicy: "unknown";
-};
-export type WorkAssistOutcome =
-  | { status: "success"; result: WorkAssistResult }
-  | { status: "confirmation_required" | "sensitive_input_blocked" | "unavailable" };
-export type WorkAssistApi = {
-  assist(input: WorkAssistRequest, signal?: AbortSignal): Promise<WorkAssistOutcome>;
-};
-
-function safeWorkAssistText(value: unknown, maximum: number): value is string {
-  return typeof value === "string" && value.length > 0 && value.length <= maximum && value.trim() === value
-    && !/[\u0000-\u001f\u007f]/u.test(value) && !containsForbiddenSecret(value);
-}
-
-function parseWorkAssistOutcome(value: unknown, status: number): WorkAssistOutcome | null {
-  if (!isRecord(value)) return null;
-  if (status === 409 && hasExactKeys(value, ["status"]) && value.status === "confirmation_required") return { status: "confirmation_required" };
-  if (status === 400 && hasExactKeys(value, ["status"]) && value.status === "sensitive_input_blocked") return { status: "sensitive_input_blocked" };
-  if (status === 503 && hasExactKeys(value, ["status"]) && value.status === "unavailable") return { status: "unavailable" };
-  if (status !== 200 || !hasExactKeys(value, ["status", "result"]) || value.status !== "success" || !isRecord(value.result)
-    || !hasExactKeys(value.result, ["summary", "tasks", "draft", "workplacePolicy"])
-    || !safeWorkAssistText(value.result.summary, 1_000)
-    || !Array.isArray(value.result.tasks) || value.result.tasks.length > 8
-    || !value.result.tasks.every((task) => safeWorkAssistText(task, 240))
-    || (value.result.draft !== null && !safeWorkAssistText(value.result.draft, 4_000))
-    || value.result.workplacePolicy !== "unknown") return null;
-  return { status: "success", result: value.result as WorkAssistResult };
-}
-
-export function createWorkAssistApi(fetchImpl: FetchLike = globalThis.fetch.bind(globalThis)): WorkAssistApi {
-  return {
-    async assist(input, signal) {
-      try {
-        const body: WorkAssistRequest = {
-          requestId: input.requestId,
-          conversationId: input.conversationId,
-          mode: input.mode,
-          text: input.text,
-          ...(input.confirmationToken ? { confirmationToken: input.confirmationToken } : {}),
-        };
-        const response = await fetchImpl("/api/work-assist", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-          ...(signal ? { signal } : {}),
-        });
-        return parseWorkAssistOutcome(await response.json(), response.status) ?? { status: "unavailable" };
-      } catch {
-        return { status: "unavailable" };
-      }
-    },
-  };
-}
 
 export function createVisualStylePreferenceApi(fetchImpl: FetchLike = globalThis.fetch.bind(globalThis)): VisualStylePreferenceApi {
   const parse = (value: unknown): VisualStylePreference | null => {
@@ -175,91 +92,8 @@ export function createVisualStylePreferenceApi(fetchImpl: FetchLike = globalThis
   };
 }
 
-const dashboardStatuses = new Set<DashboardProjectionItem["status"]>(["working", "review_required", "on_hold", "continuation_required", "completed"]);
-const dashboardPhases = new Set<DashboardProjectionItem["currentPhase"]>(["autonomous_execution", "owner_action_required", "system_interrupted", "completed"]);
-const dashboardProjects = new Set(["yui"]);
-const dashboardStatusPhases = new Set(["working:autonomous_execution", "review_required:owner_action_required", "on_hold:autonomous_execution", "continuation_required:system_interrupted", "completed:completed"]);
-const dashboardSafeActions = new Set(["確認して判断する", "作業を継続する", "再開を待つ", "完了を記録する", "受信箱の継続判定を待つ"]);
-
-const dashboardProgressClientTimeoutMs = 5_000;
-
-export function createDashboardProgressApi(
-  fetchImpl: FetchLike = globalThis.fetch.bind(globalThis),
-  options: { timeoutMs?: number } = {},
-): DashboardProgressApi {
-  const timeoutMs = Number.isSafeInteger(options.timeoutMs) && (options.timeoutMs ?? 0) > 0
-    ? options.timeoutMs!
-    : dashboardProgressClientTimeoutMs;
-  return {
-    async get(signal) {
-      if (signal?.aborted) return { connection: "unavailable", updates: [] };
-      const controller = new AbortController();
-      let timeout: ReturnType<typeof setTimeout> | undefined;
-      let resolveCancellation: ((value: DashboardProgress) => void) | undefined;
-      const unavailable = (): DashboardProgress => ({ connection: "unavailable", updates: [] });
-      const abortForCaller = () => {
-        controller.abort();
-        resolveCancellation?.(unavailable());
-      };
-      signal?.addEventListener("abort", abortForCaller, { once: true });
-      try {
-        const request = (async (): Promise<DashboardProgress> => {
-          const response = await fetchImpl("/api/dashboard/progress", { signal: controller.signal });
-          if (!response.ok) return unavailable();
-          const value = await response.json();
-          return parseDashboardProgress(value) ?? unavailable();
-        })();
-        const deadline = new Promise<DashboardProgress>((resolve) => {
-          timeout = setTimeout(() => {
-            controller.abort();
-            resolve(unavailable());
-          }, timeoutMs);
-        });
-        const cancellation = new Promise<DashboardProgress>((resolve) => { resolveCancellation = resolve; });
-        return await Promise.race([request, deadline, cancellation]);
-      } catch {
-        return unavailable();
-      } finally {
-        if (timeout !== undefined) clearTimeout(timeout);
-        signal?.removeEventListener("abort", abortForCaller);
-      }
-    },
-  };
-}
-
-function parseDashboardProgress(value: unknown): DashboardProgress | null {
-  if (!isRecord(value) || !hasExactKeys(value, ["connection", "updates"])
-    || (value.connection !== "unconnected" && value.connection !== "available" && value.connection !== "unavailable")
-    || !Array.isArray(value.updates) || value.updates.length > 24) return null;
-  const updates = value.updates.map(parseDashboardProjectionItem);
-  if (updates.some((item) => item === null) || (value.connection !== "available" && updates.length !== 0)) return null;
-  return { connection: value.connection, updates: updates as DashboardProjectionItem[] };
-}
-
-function parseDashboardProjectionItem(value: unknown): DashboardProjectionItem | null {
-  const keys = ["project", "requestId", "shortTitle", "status", "currentPhase", "needsOwnerAction", "updatedAt", "nextSafeAction"];
-  if (!isRecord(value) || !hasExactKeys(value, keys)
-    || typeof value.project !== "string" || !dashboardProjects.has(value.project)
-    || typeof value.requestId !== "string" || !/^[A-Z][A-Z0-9-]{2,100}$/u.test(value.requestId)
-    || !safeDashboardText(value.shortTitle, 120) || typeof value.status !== "string" || !dashboardStatuses.has(value.status as DashboardProjectionItem["status"])
-    || typeof value.currentPhase !== "string" || !dashboardPhases.has(value.currentPhase as DashboardProjectionItem["currentPhase"])
-    || !dashboardStatusPhases.has(`${value.status}:${value.currentPhase}`)
-    || typeof value.needsOwnerAction !== "boolean" || value.needsOwnerAction !== (value.status === "review_required")
-    || !isCanonicalDashboardTimestamp(value.updatedAt) || typeof value.nextSafeAction !== "string" || !dashboardSafeActions.has(value.nextSafeAction)) return null;
-  return value as DashboardProjectionItem;
-}
-
 function hasExactKeys(value: Record<string, unknown>, keys: string[]): boolean {
   return Object.keys(value).length === keys.length && keys.every((key) => Object.hasOwn(value, key));
-}
-
-function safeDashboardText(value: unknown, maximum: number): value is string {
-  return typeof value === "string" && value.length > 0 && value.length <= maximum && value.trim() === value
-    && !/[\u0000-\u001f\u007f]/u.test(value) && !/[\\/]/u.test(value) && !/(?:sk-[A-Za-z0-9_-]{10,}|gh[opusr]_[A-Za-z0-9]{10,}|github_pat_[A-Za-z0-9_]{10,}|Bearer\s+\S+|eyJ[A-Za-z0-9_-]{10,}|https?:\/\/|file:\/\/|(?:^|[\s(])(?:\/|~\/))/iu.test(value);
-}
-
-function isCanonicalDashboardTimestamp(value: unknown): value is string {
-  return typeof value === "string" && !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value;
 }
 
 export type ChatApi = {

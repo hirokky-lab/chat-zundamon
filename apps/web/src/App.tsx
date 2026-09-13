@@ -29,15 +29,12 @@ import {
   browserProfileApi,
   browserTranscriptionApi,
   createChatApi,
-  createDashboardProgressApi,
   createVisualStylePreferenceApi,
   createMemoryApi,
   createPhotoApi,
   createProfileApi,
   createTranscriptionApi,
   type ChatApi,
-  type DashboardProgress,
-  type DashboardProgressApi,
   type MemoryApi,
   type ProfileApi,
   type PhotoApi,
@@ -198,7 +195,6 @@ export type AppProps = {
   selectVoiceProvider?:(provider:VoiceSettings["provider"],speed?:number)=>Promise<VoiceSettings>;
   driveApi?: DriveApi;
   lifeServicesApi?: LifeServicesApi;
-  dashboardProgressApi?: DashboardProgressApi;
   visualStylePreferenceApi?: VisualStylePreferenceApi;
   proactiveMessagingEnabled?: boolean;
   proactiveApi?: ProactiveExperienceApi;
@@ -317,7 +313,6 @@ export function App({
   voiceStatus,
   selectVoiceProvider,
   lifeServicesApi,
-  dashboardProgressApi,
   visualStylePreferenceApi,
   proactiveMessagingEnabled = false,
   proactiveApi,
@@ -352,7 +347,6 @@ export function App({
   useEffect(() => () => avatarSpeechRef.current?.disable(), []);
   const [homeManagementView, setHomeManagementView] = useState<HomeManagementView | null>(null);
   const [homeManagementModel, setHomeManagementModel] = useState(EMPTY_HOME_MANAGEMENT_MODEL);
-  const [dashboardProgress, setDashboardProgress] = useState<DashboardProgress | undefined>();
   const [lifeSettingsSection,setLifeSettingsSection] = useState<"google"|"home"|"ai"|"voice"|null>(null);
   const [hydrating, setHydrating] = useState(true);
   const [persistenceWarning, setPersistenceWarning] = useState<boolean | string>(false);
@@ -453,20 +447,6 @@ export function App({
     });
     return () => { active = false; };
   }, [googleCalendarTasksApi]);
-
-  useEffect(() => {
-    if (!integratedUiEnabled || !dashboardProgressApi || lifeServicesApi) {
-      setDashboardProgress(undefined);
-      return;
-    }
-    let active = true;
-    void dashboardProgressApi.get().then((progress) => {
-      if (active) setDashboardProgress(progress);
-    }, () => {
-      if (active) setDashboardProgress({ connection: "unavailable", updates: [] });
-    });
-    return () => { active = false; };
-  }, [dashboardProgressApi, integratedUiEnabled, lifeServicesApi]);
 
   useEffect(() => {
     const mediaDevices = navigator.mediaDevices;
@@ -1236,7 +1216,7 @@ export function App({
       />);
     }
     if (integratedUiEnabled && primaryView === "home" && !lifeServicesApi) {
-      return withLaunch(<><Home header={integratedPageHeader} navigation={navigation} model={toHomeViewModel(homeManagementModel)} portrait={yuiPortrait} dashboardProgress={dashboardProgress} visualStyle={visualStyle} onNavigate={navigateIntegrated} onOpenHomeManagement={setHomeManagementView} onPreviewGoogleService={previewGoogleService} onListGoogleSources={googleCalendarTasksApi.sources} googleSourceChoices={googleCalendarTasksApi.sourceChoices} onStartConversation={(draft) => { draftRef.current = draft; setPrimaryView("talk"); }} />{integratedOverlay}</>);
+      return withLaunch(<><Home header={integratedPageHeader} navigation={navigation} model={toHomeViewModel(homeManagementModel)} portrait={yuiPortrait} visualStyle={visualStyle} onNavigate={navigateIntegrated} onOpenHomeManagement={setHomeManagementView} onPreviewGoogleService={previewGoogleService} onListGoogleSources={googleCalendarTasksApi.sources} googleSourceChoices={googleCalendarTasksApi.sourceChoices} onStartConversation={(draft) => { draftRef.current = draft; setPrimaryView("talk"); }} />{integratedOverlay}</>);
     }
     if (integratedUiEnabled && primaryView === "news" && !lifeServicesApi) {
       return withLaunch(<><News header={integratedPageHeader} navigation={navigation} model={EMPTY_NEWS_VIEW_MODEL} onNavigate={navigateIntegrated} onStartConversation={(draft) => { draftRef.current = draft; setPrimaryView("talk"); }} />{integratedOverlay}</>);
@@ -1503,7 +1483,6 @@ export function HostedApp({
       characterCloud: vrmStorageConfig ? createVrmCloud({...vrmStorageConfig, ownerId: session.userId, getSession: () => authClient.getSession(), fetchImpl}) : undefined,
       createAvatarSpeechPlayer: () => createBrowserSpeechPlayer(authorizedFetch, {playbackOnly:true}),
       memoryApi: createMemoryApi(authorizedFetch),
-      dashboardProgressApi: createDashboardProgressApi(authorizedFetch),
       visualStylePreferenceApi: createVisualStylePreferenceApi(sameOriginAuthorizedFetch),
       photoApi: createPhotoApi(authorizedFetch),
       realtimeClient: suppliedRealtimeClient
@@ -1546,7 +1525,6 @@ export function HostedApp({
     characterCloud={dependencies.characterCloud}
     createAvatarSpeechPlayer={dependencies.createAvatarSpeechPlayer}
     memoryApi={dependencies.memoryApi}
-    dashboardProgressApi={dependencies.dashboardProgressApi}
     visualStylePreferenceApi={dependencies.visualStylePreferenceApi}
     photoApi={dependencies.photoApi}
     photoAnalysisEnabled={photoAnalysisEnabled}

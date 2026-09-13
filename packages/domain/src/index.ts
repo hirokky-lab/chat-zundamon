@@ -106,8 +106,6 @@ export {
   parseRemoteChatSnapshot,
 } from "./hosted.js";
 export type { MigrationBundle, RemoteChatSnapshot } from "./hosted.js";
-export { buildPdcaRecord, fingerprintAutonomousTask, markAutonomousCostUnknown, parseAutonomousContract, parseAutonomousInventory, reduceAutonomousState, reserveAutonomousCost, selectNextAutonomousTask, settleAutonomousCost, toBridgeEnvelope } from "./autonomous-development.js";
-export type { AutonomousContract, AutonomousCostEntry, AutonomousCostLedger, AutonomousCostState, AutonomousInventoryItem, AutonomousInventoryState, AutonomousRuntimeEvent, AutonomousRuntimeState, AutonomousSelectionState, AutonomousTaskKind, BridgeEnvelope, SelectedAutonomousTask } from "./autonomous-development.js";
 
 export { parseGoogleSourceListResult, isValidGoogleSourceId } from "./google-calendar-tasks-preview.js";
 export type { GoogleSourceListResult } from "./google-calendar-tasks-preview.js";

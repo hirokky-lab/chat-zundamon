@@ -26,15 +26,6 @@ describe("transcription configuration", () => {
     expect(config.tasksReadTimeoutMs).toBe(15_000);
   });
 
-  it("moves the local YUI default away from the fixed dashboard projection port and enables that adapter only with a valid local token", () => {
-    expect(loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key" })).toMatchObject({ mode: "local", port: 4384, dashboardProjection: undefined });
-    expect(loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key", ZUNDAMON_DASHBOARD_PROJECTION_TOKEN: "a".repeat(32), ZUNDAMON_DASHBOARD_MIN_GENERATION: "2" }))
-      .toMatchObject({ dashboardProjection: { minimumGeneration: 2 } });
-    expect(loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key", ZUNDAMON_DASHBOARD_PROJECTION_TOKEN: "invalid" })).toMatchObject({ dashboardProjection: undefined });
-    expect(loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key", ZUNDAMON_DASHBOARD_PROJECTION_TOKEN: "a".repeat(32) }))
-      .toMatchObject({ dashboardProjection: undefined });
-  });
-
   it("rejects an invalid web-search timeout without changing the fixed model", () => {
     expect(() => loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key", ZUNDAMON_WEB_SEARCH_TIMEOUT_MS: "0" })).toThrow();
     expect(() => loadConfig({ ZUNDAMON_OPENAI_API_KEY: "test-key", ZUNDAMON_CALENDAR_READ_TIMEOUT_MS: "0" })).toThrow();
@@ -69,7 +60,6 @@ describe("transcription configuration", () => {
       tasks_read: false,
       one_time_reminder: false,
       photo_analysis: false,
-      work_assist: false,
       avatar: false,
     });
     expect(loadConfig({
@@ -167,7 +157,6 @@ describe("hosted configuration", () => {
         storageUsd: 0.1,
       },
     });
-    expect(config).not.toHaveProperty("dashboardProjection");
   });
 
   it("accepts only positive cost overrides and keeps local SQLite defaults", () => {

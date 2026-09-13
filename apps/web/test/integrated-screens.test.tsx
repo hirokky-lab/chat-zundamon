@@ -296,29 +296,6 @@ describe("integrated UI screens", () => {
     expect(screen.queryByText(/確認しました/u)).not.toBeInTheDocument();
   });
 
-  it("shows only the validated dashboard projection and keeps a missing connection neutral", () => {
-    const { rerender } = render(<Home navigation={<div />} model={EMPTY_HOME_VIEW_MODEL} dashboardProgress={{
-      connection: "available",
-      updates: [{
-        project: "yui",
-        requestId: "YUI-DASHBOARD-PROJECTION-20260823-001",
-        shortTitle: "進捗の安全な参照を追加する",
-        status: "working",
-        currentPhase: "autonomous_execution",
-        needsOwnerAction: false,
-        updatedAt: "2026-08-23T00:00:00.000Z",
-        nextSafeAction: "作業を継続する",
-      }],
-    }} />);
-
-    expect(screen.getByRole("heading", { name: "開発の進捗" })).toBeVisible();
-    expect(screen.getByText("進捗の安全な参照を追加する", { selector: "span" })).toBeVisible();
-    expect(screen.getByText("次に: 作業を継続する")).toBeVisible();
-
-    rerender(<Home navigation={<div />} model={EMPTY_HOME_VIEW_MODEL} dashboardProgress={{ connection: "unconnected", updates: [] }} />);
-    expect(screen.getByText("開発の進捗はまだ接続されていません")).toBeVisible();
-  });
-
   it("exposes the integrated page and portrait styling seams", () => {
     render(<><Home navigation={<nav aria-label="ホーム側ナビ" />} model={EMPTY_HOME_VIEW_MODEL} portrait={{ src: "/portrait.png", alt: "SDずんだもん" }} /><News navigation={<nav aria-label="ニュース側ナビ" />} model={EMPTY_NEWS_VIEW_MODEL} /></>);
     const home = screen.getByRole("heading", { name: "ホーム" }).closest("main")!;

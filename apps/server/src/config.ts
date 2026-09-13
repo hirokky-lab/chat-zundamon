@@ -57,7 +57,6 @@ export type LocalServerConfig = CommonConfig & {
   automaticChatMemoryMode: "disabled";
   dbPath: string;
   usageLogPath: string;
-  dashboardProjection?: { token: string; minimumGeneration: number };
 };
 export type HostedServerConfig = CommonConfig & {
   mode: "hosted";
@@ -111,7 +110,6 @@ export function loadConfig(env = process.env): ServerConfig {
       tasks_read: env.ZUNDAMON_TASKS_READ_ENABLED === "true",
       one_time_reminder: env.ZUNDAMON_ONE_TIME_REMINDER_ENABLED === "true",
       photo_analysis: env.ZUNDAMON_PHOTO_ANALYSIS_ENABLED === "true",
-      work_assist: env.ZUNDAMON_WORK_ASSIST_ENABLED === "true",
       avatar: env.ZUNDAMON_AVATAR_ENABLED === "true",
     },
   };
@@ -123,7 +121,6 @@ export function loadConfig(env = process.env): ServerConfig {
       automaticChatMemoryMode: "disabled",
       dbPath: z.string().min(1).parse(env.ZUNDAMON_DB_PATH ?? "./data/zundamon-ai.sqlite"),
       usageLogPath: z.string().min(1).parse(env.ZUNDAMON_USAGE_LOG_PATH ?? "./data/zundamon-usage.ndjson"),
-      dashboardProjection: localDashboardProjection(env),
     };
   }
 
@@ -178,14 +175,6 @@ export function hostedGoogleOAuth(env: Record<string, string | undefined>, allow
   } catch {
     return undefined;
   }
-}
-
-function localDashboardProjection(env: Record<string, string | undefined>): { token: string; minimumGeneration: number } | undefined {
-  const token = env.ZUNDAMON_DASHBOARD_PROJECTION_TOKEN?.trim();
-  const generationText = env.ZUNDAMON_DASHBOARD_MIN_GENERATION?.trim();
-  const minimumGeneration = Number(generationText);
-  if (!token || !generationText || !/^[A-Za-z0-9_-]{32,128}$/u.test(token) || !Number.isSafeInteger(minimumGeneration) || minimumGeneration < 1) return undefined;
-  return { token, minimumGeneration };
 }
 
 function isExactly32ByteBase64(value: string): boolean {

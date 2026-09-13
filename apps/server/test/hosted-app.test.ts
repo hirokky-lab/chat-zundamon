@@ -27,7 +27,6 @@ const config: HostedServerConfig = {
     tasks_read: false,
     one_time_reminder: false,
     photo_analysis: false,
-    work_assist: false,
     avatar: false,
   },
   supabaseUrl: "https://project.supabase.co",

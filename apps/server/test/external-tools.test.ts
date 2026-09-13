@@ -66,7 +66,6 @@ describe("external tool boundary", () => {
       tasks_read: false,
       one_time_reminder: false,
       photo_analysis: false,
-      work_assist: false,
       avatar: false,
     });
     await expect(boundary.run(request({ execute }))).resolves.toEqual({ status: "disabled" });
@@ -274,14 +273,14 @@ describe("external tool boundary", () => {
     const controller = new AbortController();
     if (abortMode) controller.abort();
     const boundary = createExternalToolBoundary({
-      flags: { ...ALL_EXTERNAL_TOOLS_OFF, work_assist: true },
+      flags: { ...ALL_EXTERNAL_TOOLS_OFF, web_search: true },
       costGuard: costGuard(),
       maximumUsdByArea,
       telemetry: { record: (event) => events.push(event) },
     });
 
     const result = await boundary.run(request({
-      feature: "work_assist",
+      feature: "web_search",
       signal: controller.signal,
       execute: async () => { throw error; },
     }));
@@ -292,7 +291,7 @@ describe("external tool boundary", () => {
 
   it("keeps failure neutral when conservative cost holding also fails", async () => {
     const boundary = createExternalToolBoundary({
-      flags: { ...ALL_EXTERNAL_TOOLS_OFF, work_assist: true },
+      flags: { ...ALL_EXTERNAL_TOOLS_OFF, web_search: true },
       costGuard: costGuard(async ({ requestId }) => ({
         requestId,
         settle: async () => undefined,
@@ -302,7 +301,7 @@ describe("external tool boundary", () => {
     });
 
     await expect(boundary.run(request({
-      feature: "work_assist",
+      feature: "web_search",
       execute: async () => { throw new Error("private tool error"); },
     }))).resolves.toEqual({ status: "failure" });
   });

@@ -5,7 +5,6 @@ import type { GooglePreviewResult, GooglePreviewService, GoogleSourceListResult 
 import type { HomeManagementView } from "../home-management";
 import { useIntegratedSwipe } from "../integrated-swipe";
 import { createHomeViewModel, type HomeViewModel, type IntegratedSwipeDirection, type YuiPortrait } from "../integrated-ui";
-import type { DashboardProgress } from "../api";
 import type { VisualStyle } from "../visual-style";
 
 type HomeProps = {
@@ -16,7 +15,6 @@ type HomeProps = {
   onNavigate?: (direction: IntegratedSwipeDirection) => void;
   onStartConversation?: (draft: string) => void;
   onOpenHomeManagement?: (view: HomeManagementView) => void;
-  dashboardProgress?: DashboardProgress;
   visualStyle?: VisualStyle;
   onPreviewGoogleService?: (service: GooglePreviewService, signal?: AbortSignal, sourceId?: string) => Promise<GooglePreviewResult>;
   onListGoogleSources?: (service: GooglePreviewService, signal?: AbortSignal) => Promise<GoogleSourceListResult>;
@@ -36,7 +34,7 @@ function todayLabel(): string {
   return new Intl.DateTimeFormat("ja-JP", { month: "long", day: "numeric", weekday: "short" }).format(new Date());
 }
 
-export function Home({ header, navigation, model, portrait, onNavigate, onStartConversation, onOpenHomeManagement, dashboardProgress, visualStyle = "yui", onPreviewGoogleService, onListGoogleSources, googleSourceChoices }: HomeProps): ReactElement {
+export function Home({ header, navigation, model, portrait, onNavigate, onStartConversation, onOpenHomeManagement, visualStyle = "yui", onPreviewGoogleService, onListGoogleSources, googleSourceChoices }: HomeProps): ReactElement {
   const home = createHomeViewModel(model);
   const [imageFailed, setImageFailed] = useState(false);
   const [sourceChoices, setSourceChoices] = useState<Record<GooglePreviewService, GoogleSourceChoice | null>>(() => ({calendar:googleSourceChoices?.get("calendar") ?? null,tasks:googleSourceChoices?.get("tasks") ?? null}));
@@ -140,16 +138,6 @@ export function Home({ header, navigation, model, portrait, onNavigate, onStartC
       <div className="yui-speech-bubble">無理しすぎず、今日もぼちぼちいこう</div>
     </section>
     <time className="home-date" dateTime={new Date().toISOString()}>{todayLabel()}</time>
-    {dashboardProgress ? <section className="home-section" aria-labelledby="dashboard-progress-heading">
-      <h1 id="dashboard-progress-heading">開発の進捗</h1>
-      {dashboardProgress.connection === "available"
-        ? dashboardProgress.updates.map((update) => <div className="home-service-row" key={`${update.project}:${update.requestId}`}>
-          <span className="home-service-copy"><span>{update.project}</span><span>{update.shortTitle}</span></span>
-          <span>{update.needsOwnerAction ? "要確認" : update.status}</span>
-          <p>次に: {update.nextSafeAction}</p>
-        </div>)
-        : <p>{dashboardProgress.connection === "unconnected" ? "開発の進捗はまだ接続されていません" : "開発の進捗を確認できません"}</p>}
-    </section> : null}
     {home.sections.map((section, index) => {
       const headingId = `home-section-${index}`;
       const googleService = section.kind === "calendar" || section.kind === "tasks" ? section.kind : null;

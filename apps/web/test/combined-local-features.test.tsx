@@ -3,7 +3,6 @@ import userEvent from "@testing-library/user-event";
 import type { ReactElement, ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MemoryApi } from "../src/api";
-import { createWorkAssistApi } from "../src/api";
 import { App } from "../src/App";
 import { createMemoryLocalStateStore } from "../src/local-state";
 import { createMemoryNotificationPreferenceStore, createLocalFixtureProactiveApi } from "../src/proactive-message";
@@ -75,7 +74,7 @@ describe("combined local feature fixture", () => {
     expect(off.props.live2dModel).toBeUndefined();
   });
 
-  it("keeps character Talk, work assistance, proactive text, and reduced-motion Live2D isolated across reload", async () => {
+  it("keeps character Talk, proactive text, and reduced-motion Live2D isolated across reload", async () => {
     const user = userEvent.setup();
     const storage = browserStorage();
     const chatStore = createMemoryLocalStateStore();
@@ -109,11 +108,6 @@ describe("combined local feature fixture", () => {
         : null
     ));
 
-    const workFetch = vi.fn(async () => Response.json({
-      status: "success",
-      result: { summary: "作業を整理しました", tasks: ["確認する"], draft: null, workplacePolicy: "unknown" },
-    }));
-    const workAssist = createWorkAssistApi(workFetch);
     const proactiveApi = createLocalFixtureProactiveApi(storage, () => "Asia/Tokyo");
     const manifest = createZundamonModelManifest("a".repeat(64));
 
@@ -139,17 +133,6 @@ describe("combined local feature fixture", () => {
     expect(respond).toHaveBeenCalledOnce();
     expect(JSON.stringify(respond.mock.calls)).not.toContain(proactiveText);
     expect(processMemory).not.toHaveBeenCalled();
-
-    await expect(workAssist.assist({
-      requestId: "work-assist-combined-1",
-      conversationId: "conversation-main",
-      mode: "organize",
-      text: "本人が明示した作業だけを整理する",
-      confirmationToken: "fixture-confirmation",
-    })).resolves.toMatchObject({ status: "success" });
-    const requestBody = String(workFetch.mock.calls[0]?.[1]?.body);
-    expect(requestBody).toContain("本人が明示した作業だけを整理する");
-    expect(requestBody).not.toContain(proactiveText);
 
     expect(screen.queryByRole("button", { name: "ホームへ移動" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "ニュースへ移動" })).not.toBeInTheDocument();
@@ -199,15 +182,10 @@ describe("combined local feature fixture", () => {
     expect(screen.queryByTestId("live2d-avatar-canvas")).not.toBeInTheDocument();
   });
 
-  it("keeps work assistance and the static avatar usable when the proactive fixture fails", async () => {
+  it("keeps chat and the static avatar usable when the proactive fixture fails", async () => {
     const user = userEvent.setup();
     const privateFailure = `${proactiveText} private-adapter-detail`;
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    const workAssist = createWorkAssistApi(async () => Response.json({
-      status: "success",
-      result: { summary: "安全に整理しました", tasks: [], draft: null, workplacePolicy: "unknown" },
-    }));
-
     render(<App
       splashDurationMs={0}
       integratedUiEnabled
@@ -224,8 +202,6 @@ describe("combined local feature fixture", () => {
     />);
 
     expect(await screen.findByRole("textbox", { name: "メッセージ" })).toBeVisible();
-    await expect(workAssist.assist({ requestId: "work-after-proactive-failure", conversationId: "conversation-main", mode: "organize", text: "安全に整理する" }))
-      .resolves.toMatchObject({ status: "success" });
     expect(await screen.findByRole("img", { name: "キャラクター（素材未設定時は代替画像）" })).toBeVisible();
     expect(screen.queryByText(privateFailure)).not.toBeInTheDocument();
     expect(warn.mock.calls.flat().join(" ")).not.toContain(privateFailure);

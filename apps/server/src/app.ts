@@ -124,18 +124,11 @@ import { createGoogleCalendarTasksReadGateway } from "./google-calendar-tasks-pr
 import { createGoogleCalendarTasksPreviewGateway, type GoogleCalendarTasksPreviewGateway } from "./google-calendar-tasks-preview-provider.js";
 import { createGoogleCalendarTasksPreviewService } from "./google-calendar-tasks-preview.js";
 import {
-  DashboardProjectionService,
-  createOwnerLocalDashboardProjectionGateway,
-  registerDashboardProjectionRoute,
-  type DashboardProjectionGateway,
-} from "./dashboard-projection.js";
-import {
   createMemoryVisualStylePreferenceRepository,
   createSupabaseVisualStylePreferenceRepository,
   registerVisualStylePreferenceRoutes,
   type VisualStylePreferenceRepository,
 } from "./visual-style-preferences.js";
-import { registerWorkAssistRoute, type WorkAssistGateway } from "./work-assist.js";
 
 declare module "fastify" {
   interface FastifyInstance {
@@ -203,13 +196,10 @@ export type BuildAppOptions = {
   memoryTurnSource?: { load(user: RequestUser, input: { sourceMessageId: string; sourceOccurredAt: string }): Promise<AutomaticMemorySourceResult> };
   memoryPolicyVersion?: "natural-v1";
   browserConfig?: BrowserConfig;
-  dashboardProjectionGateway?: DashboardProjectionGateway;
-  dashboardProjectionMinimumGeneration?: number;
   visualStylePreferenceRepository?: VisualStylePreferenceRepository;
   photoRepository?: PhotoRepository;
   photoStorage?: PhotoStorage;
   photoAnalysisGateway?: PhotoAnalysisGateway;
-  workAssistGateway?: WorkAssistGateway;
 };
 
 const localCostLimits: CostLimits = {
@@ -330,11 +320,6 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
   }
   app.get("/healthz", async () => ({ ok: true }));
   app.get("/api/healthz", async () => ({ ok: true }));
-  registerDashboardProjectionRoute(app, new DashboardProjectionService({
-    gateway: options.dashboardProjectionGateway,
-    minimumGeneration: options.dashboardProjectionMinimumGeneration,
-    now: options.now,
-  }));
   if (options.browserConfig) registerBrowserConfigRoute(app, options.browserConfig);
   if (googleCalendarTasksRuntime.calendarEnabled || googleCalendarTasksRuntime.tasksEnabled) {
     registerGoogleCalendarTasksRoutes(app, {
@@ -343,12 +328,6 @@ export function buildApp(options: BuildAppOptions = {}): FastifyInstance {
       previewService: googleCalendarTasksPreviewService,
       enabled: { calendar: googleCalendarTasksRuntime.calendarEnabled, tasks: googleCalendarTasksRuntime.tasksEnabled },
       oauth: options.googleOAuthService,
-    });
-  }
-  if (externalToolFlags.work_assist && options.workAssistGateway) {
-    registerWorkAssistRoute(app, {
-      boundary: externalTools,
-      gateway: options.workAssistGateway,
     });
   }
   if (options.chatStateRepository) {
@@ -575,10 +554,6 @@ export function buildProductionApp(): FastifyInstance {
     transcriptionGateway: createOpenAITranscriptionGateway({ apiKey: config.openaiApiKey }),
     migrationExport: true,
     externalToolFlags: config.externalToolFlags,
-    ...(config.dashboardProjection ? {
-      dashboardProjectionGateway: createOwnerLocalDashboardProjectionGateway({ token: config.dashboardProjection.token }),
-      dashboardProjectionMinimumGeneration: config.dashboardProjection.minimumGeneration,
-    } : {}),
     calendarReadTimeoutMs: config.calendarReadTimeoutMs,
     tasksReadTimeoutMs: config.tasksReadTimeoutMs,
   });
