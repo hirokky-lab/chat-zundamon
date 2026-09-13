@@ -18,7 +18,7 @@ describe('Codex chat dispatch',()=>{
     expect(normal.respond).toHaveBeenCalledOnce();expect(api.start).not.toHaveBeenCalled();
   });
   it.each([
-    ['コーデックスくんにAIずんだもんの進捗聞いて', 'AIずんだもんの進捗聞いて'],
+    ['コーデックスくんにサンプルアプリの進捗聞いて', 'サンプルアプリの進捗聞いて'],
     ['CodexさんにChatずんだもんの進捗きいて', 'Chatずんだもんの進捗きいて'],
     ['コーデックス君にこのアプリの状態を尋ねて', 'このアプリの状態を尋ねて'],
     ['ずんだもんAIの進捗確認して　コーデックス', 'ずんだもんAIの進捗確認して'],
@@ -75,7 +75,7 @@ describe('Codex chat dispatch',()=>{
   });
 });
 
-function followup(text: string, prior = 'コーデックスくんにAIずんだもんの進捗聞いて'): ChatRequest {
+function followup(text: string, prior = 'コーデックスくんにサンプルアプリの進捗聞いて'): ChatRequest {
  const request=input(prior);
  return {...request,clientMessageId:'followup',timeline:[...request.timeline,{type:'message',id:'followup',role:'user',text,delivery:'sending',createdAt:job.createdAt}]};
 }

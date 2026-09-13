@@ -430,7 +430,7 @@ describe("hosted YUI app", () => {
   });
 });
 
-it.each(['コーデックスくんにAIずんだもんの進捗聞いて', 'CodexにREADMEを調べて', 'ずんだもんAIの進捗をコーデックスでしらべて', 'ずんだもんAIの進捗確認して　コーデックス'])('routes an authenticated Codex request to Codex and persists its reply: %s', async text => {
+it.each(['コーデックスくんにサンプルアプリの進捗聞いて', 'CodexにREADMEを調べて', 'ずんだもんAIの進捗をコーデックスでしらべて', 'ずんだもんAIの進捗確認して　コーデックス'])('routes an authenticated Codex request to Codex and persists its reply: %s', async text => {
   const auth = controllableAuth(); auth.emit({accessToken:'token-1',userId:'user-1',email:'owner@example.com'});
   const base = apiFetch();
   const fetchImpl = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -453,7 +453,7 @@ it.each(['コーデックスくんにAIずんだもんの進捗聞いて', 'Code
   await waitFor(() => expect(fetchImpl.mock.calls.some(([input,init]) => String(input).endsWith('/api/chat-state') && init?.method === 'PUT' && String(init.body).includes('接続テストの調査結果です'))).toBe(true));
   const request = fetchImpl.mock.calls.find(([input,init]) => String(input).endsWith('/api/codex/jobs') && init?.method === 'POST')!;
   expect(new Headers(request[1]?.headers).get('Authorization')).toBe('Bearer token-1');
-  if(text==='コーデックスくんにAIずんだもんの進捗聞いて') {
+  if(text==='コーデックスくんにサンプルアプリの進捗聞いて') {
     const before=fetchImpl.mock.calls.length;
     await user.type(composer,'今は待ち？');
     await user.click(screen.getByRole('button',{name:'メッセージを送信'}));
