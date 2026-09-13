@@ -1,0 +1,122 @@
+/* Conversation-only refresh. Service cards keep their own presentation. */
+:root:root .chat-screen.chat-refresh {
+  --chat-refresh-canvas: #fafafa;
+  --chat-refresh-input: #fff;
+  --chat-refresh-border: #e5e3e9;
+  --chat-refresh-owner: #f0eff4;
+  --chat-refresh-text: #302e35;
+  --chat-refresh-muted: #77747d;
+  --chat-refresh-accent: #766395;
+  background: var(--chat-refresh-canvas);
+}
+:root:root .chat-screen.chat-refresh .chat-header { background: var(--chat-refresh-input); }
+:root:root .chat-screen.chat-refresh .chat-timeline {
+  gap: 17px;
+  padding-bottom: calc(var(--chat-timeline-composer-height, var(--chat-composer-height, 90px)) + 16px);
+}
+:root:root .chat-screen.chat-refresh .chat-message.is-assistant .chat-message-bubble {
+  padding: 7px 2px;
+  border: 0;
+  border-radius: 0;
+  color: var(--chat-refresh-text);
+  background: transparent;
+  box-shadow: none;
+}
+:root:root .chat-screen.chat-refresh .chat-message.is-user .chat-message-bubble {
+  border: 0;
+  border-radius: 18px 18px 5px 18px;
+  color: var(--chat-refresh-text);
+  background: var(--chat-refresh-owner);
+  box-shadow: none;
+}
+:root:root .chat-screen.chat-refresh .chat-message-time,
+:root:root .chat-screen.chat-refresh .chat-date-divider { color: var(--chat-refresh-muted); }
+:root:root .chat-screen.chat-refresh .composer-shell {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px 44px;
+  grid-template-rows: auto;
+  align-items: end;
+  padding: 4px;
+  border: 1px solid var(--chat-refresh-border);
+  border-radius: 27px;
+  background: var(--chat-refresh-input);
+  box-shadow: 0 3px 14px rgb(30 25 40 / 5%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+}
+:root:root .chat-screen.chat-refresh .composer-shell[hidden] { display: none; }
+:root:root .chat-screen.chat-refresh .composer-shell.has-photo { grid-template-rows: auto auto; border-radius: 24px; }
+:root:root .chat-screen.chat-refresh .composer-shell.has-photo textarea,
+:root:root .chat-screen.chat-refresh .composer-shell.has-photo .attach-action,
+:root:root .chat-screen.chat-refresh .composer-shell.has-photo .microphone-action,
+:root:root .chat-screen.chat-refresh .composer-shell.has-photo .send-action { grid-row: 2; }
+.composer-photo-attachment { grid-column: 1 / -1; grid-row: 1; position: relative; width: 88px; margin: 8px; }
+.composer-photo-attachment img { display: block; width: 88px; height: 88px; object-fit: cover; border-radius: 14px; }
+.composer-photo-attachment button { position: absolute; top: 2px; right: 2px; display: grid; place-items: center; width: 28px; height: 28px; border: 0; border-radius: 50%; color: white; background: #263b2bbf; }
+.composer-photo-attachment span { display: block; font-size: 12px; margin-top: 4px; }
+.photo-picker button { display: flex; align-items: center; gap: 14px; min-height: 52px; font-size: 1rem; }
+.photo-picker button svg { flex: none; }
+.photo-picker button:hover { background: rgb(63 114 78 / 8%); }
+:root:root .chat-screen.chat-refresh .composer-shell:focus-within { border-color: #b8adc9; }
+:root:root .chat-screen.chat-refresh .composer-shell textarea {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  min-height: 32px;
+  padding: 4px 2px;
+  color: var(--chat-refresh-text);
+}
+:root:root .chat-screen.chat-refresh .composer-actions-row,
+:root:root .chat-screen.chat-refresh .composer-actions { display: contents; }
+:root:root .chat-screen.chat-refresh .attach-action { grid-column: 1; grid-row: 1; }
+:root:root .chat-screen.chat-refresh .microphone-action { grid-column: 3; grid-row: 1; }
+:root:root .chat-screen.chat-refresh .send-action { grid-column: 4; grid-row: 1; }
+:root:root .chat-screen.chat-refresh .attach-action,
+:root:root .chat-screen.chat-refresh .microphone-action { color: var(--chat-refresh-muted); }
+:root:root .chat-screen.chat-refresh .attach-action::before,
+:root:root .chat-screen.chat-refresh .microphone-action::before { border: 0; background: transparent; }
+:root:root .chat-screen.chat-refresh .send-action::before { border-color: var(--chat-refresh-border); background: var(--chat-refresh-owner); }
+:root:root .chat-screen.chat-refresh .recording-indicator {
+  position: absolute;
+  left: 48px;
+  bottom: 4px;
+  min-height: 44px;
+  pointer-events: none;
+}
+:root:root .chat-screen.chat-refresh .composer-restore {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border: 1px solid var(--chat-refresh-border);
+  border-radius: 22px;
+  color: var(--chat-refresh-muted);
+  background: var(--chat-refresh-input);
+  font: inherit;
+  font-size: .85rem;
+}
+:root:root .chat-screen.chat-refresh .latest-chat-action {
+  border-color: var(--chat-refresh-border);
+  color: var(--chat-refresh-accent);
+  background: var(--chat-refresh-input);
+  box-shadow: 0 3px 12px rgb(30 25 40 / 7%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:root .chat-screen.chat-refresh {
+    --chat-refresh-canvas: #1b1b1e;
+    --chat-refresh-input: #252528;
+    --chat-refresh-border: #404046;
+    --chat-refresh-owner: #303036;
+    --chat-refresh-text: #eeeef0;
+    --chat-refresh-muted: #aaa7b1;
+    --chat-refresh-accent: #c0b2d6;
+  }
+}
+
+:root:root .chat-screen.chat-refresh.avatar-conversation .chat-message.is-assistant .chat-message-bubble { color:#fff; background:transparent; }
+:root:root .chat-screen.chat-refresh.avatar-conversation .chat-message.is-user .chat-message-bubble { color:#fff; background:#ffffff20; }
+:root:root .chat-screen.chat-refresh.avatar-conversation .chat-message-time,:root:root .chat-screen.chat-refresh.avatar-conversation .chat-date-divider { color:#ddd1ea; }
+.avatar-conversation .avatar-credits { top:62px; bottom:auto; }

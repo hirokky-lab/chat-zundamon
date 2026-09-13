@@ -1,0 +1,15 @@
+.google-write-editor{font:inherit;margin:6px 0;max-width:100%;}
+.google-write-editor>button{font:inherit;font-size:.8em;color:var(--color-primary,#387347);border:0;background:transparent;padding:6px 10px;cursor:pointer;}
+.google-write-editor section{background:rgba(255,255,255,.96);color:#263b2d;border:1px solid #dce4d5;border-radius:20px;padding:18px;max-width:100%;box-sizing:border-box;}
+.google-write-editor h3{margin:0 0 12px;font:inherit;font-weight:700;}
+.google-write-editor label{display:grid;gap:5px;margin:12px 0;}
+.google-write-editor input,.google-write-editor textarea{font:inherit;box-sizing:border-box;width:100%;min-width:0;border:1px solid #b9cbb5;border-radius:9px;padding:10px;color:inherit;background:white;}
+.google-write-editor textarea{min-height:180px;resize:vertical;}
+.google-write-editor section button{font:inherit;border:1px solid #b9cbb5;background:#edf3e9;border-radius:9px;padding:9px 12px;margin:5px 6px 5px 0;cursor:pointer;}
+.google-write-editor button:disabled{opacity:.5;cursor:default;}
+.google-write-editor .write-body{white-space:pre-wrap;overflow-wrap:anywhere;max-height:45vh;overflow:auto;}
+.google-write-editor p,.google-write-editor strong{overflow-wrap:anywhere;}
+
+.google-write-backdrop.google-write-editor{position:fixed;inset:0;z-index:1000;margin:0;padding:20px;display:flex;align-items:center;justify-content:center;background:rgba(24,42,27,.3);font:400 16px/1.6 -apple-system,BlinkMacSystemFont,"Noto Sans JP",sans-serif;box-sizing:border-box;}
+.google-write-backdrop section{width:560px;max-height:85dvh;overflow-y:auto;overscroll-behavior:contain;}
+@media(max-width:600px){.google-write-backdrop.google-write-editor{padding:12px;align-items:flex-end;}.google-write-backdrop section{padding:18px;max-height:85dvh;width:100%;}}

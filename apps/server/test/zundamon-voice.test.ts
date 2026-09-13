@@ -1,0 +1,5 @@
+import {it,expect,vi} from 'vitest';
+import {createZundamonVoice} from '../src/zundamon-voice';
+it('requires the Zundamon voice and refuses unrelated engines',async()=>{const f=vi.fn(async()=>Response.json([{name:'other',styles:[{id:3}]}]));const voice=createZundamonVoice(f);expect(await voice.status()).toBe(false);await expect(voice.gateway.speak('こんにちは')).rejects.toThrow();expect(f).toHaveBeenCalledTimes(2);});
+it('synthesizes bounded WAV with the approved speaker and refuses invalid audio',async()=>{const wav=Buffer.alloc(44);wav.write('RIFF');wav.write('WAVE',8);const f=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json([{name:'ずんだもん',styles:[{id:3}]}])).mockResolvedValueOnce(Response.json({accent_phrases:[]})).mockResolvedValueOnce(new Response(wav));expect((await createZundamonVoice(f).gateway.speak('こんにちは')).length).toBe(44);expect(String(f.mock.calls[2][0])).toBe('http://127.0.0.1:50021/synthesis?speaker=3');});
+it('does not send secrets or cancelled input upstream',async()=>{const f=vi.fn<typeof fetch>();await expect(createZundamonVoice(f).gateway.speak('')).rejects.toThrow();expect(f).not.toHaveBeenCalled();});

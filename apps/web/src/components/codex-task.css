@@ -1,0 +1,27 @@
+.codex-task {margin-bottom:10px;padding:8px 12px;border:1px solid #cbdcc1;border-radius:20px;background:#fffdf6ed;color:#29412d;backdrop-filter:blur(16px);font-size:14px;}
+.codex-task-row {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.codex-task small {font-weight:400;color:#62765a;margin-left:6px;}
+.codex-task p {margin:4px 0 0;line-height:1.5;}
+.codex-task button,.codex-task summary {min-height:40px;padding:8px 12px;border:1px solid #cbdcc1;border-radius:12px;background:#edf4e6;color:inherit;font:inherit;cursor:pointer;}
+.codex-task button {flex-shrink:0;}
+.codex-task button:disabled {opacity:.5;cursor:default;}
+.codex-task-results {margin-top:10px;display:flex;align-items:start;gap:8px;flex-wrap:wrap;}
+.codex-task details[open] {width:100%;}
+.codex-task-full {max-height:28dvh;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;padding:12px 2px;}
+@media(max-width:480px){.codex-task {font-size:12px;padding:8px 12px;}.codex-task small {display:inline;margin-left:6px;}}
+
+.codex-task-row > div {min-width:0;}
+.codex-task.is-working p {overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.codex-task-confirm {margin-top:8px;}
+.codex-confirmation {width:min(560px,calc(100vw - 32px));max-height:80dvh;padding:18px;border:1px solid #cbdcc1;border-radius:24px;background:#fffdf6;color:#29412d;box-sizing:border-box;}
+.codex-confirmation::backdrop {background:#172d2459;backdrop-filter:blur(5px);}
+.codex-confirmation header {display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.codex-confirmation h2 {font-size:18px;margin:0;}
+.codex-confirmation button {font:inherit;min-height:44px;padding:8px 12px;border-radius:12px;border:1px solid #cbdcc1;color:inherit;background:#edf4e6;cursor:pointer;}
+.codex-confirmation button:disabled {opacity:.5;cursor:default;}
+.codex-confirmation-body {max-height:52dvh;overflow:auto;margin:16px 0;}
+.codex-confirmation pre {white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6;}
+.codex-confirmation fieldset {border:0;padding:0;margin:16px 0;min-width:0;}
+.codex-confirmation input {box-sizing:border-box;width:100%;border:1px solid #cbdcc1;border-radius:12px;padding:12px;background:white;color:#29412d;font:inherit;font-size:16px;margin-top:8px;}
+.codex-confirmation footer,.codex-answer-options {display:flex;gap:8px;flex-wrap:wrap;}
+.codex-confirmation button[aria-pressed=true] {background:#dcedca;border-color:#6d915d;}

@@ -1,0 +1,17 @@
+.wallpaper-settings {display:grid;gap:24px;}
+.wallpaper-settings p {margin:0;}
+.wallpaper-settings fieldset {min-width:0;border:0;padding:0;margin:0;}
+.wallpaper-settings legend,.wallpaper-settings h2 {font-size:17px;font-weight:650;margin:0 0 12px;}
+.wallpaper-settings h2 {display:flex;align-items:center;gap:8px;}
+.wallpaper-settings button {font:inherit;color:var(--menu-ink);cursor:pointer;}
+.wallpaper-settings button:disabled {opacity:.5;cursor:default;}
+.wallpaper-settings button:focus-visible {outline:3px solid #478052;outline-offset:3px;}
+.wallpaper-tones {display:flex;flex-wrap:wrap;gap:8px;}
+.wallpaper-tones button {min-height:44px;border:1px solid var(--menu-border);border-radius:12px;padding:9px 16px;background:#f5f7ef;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+.wallpaper-tones button[aria-pressed=true] {background:#dfecd1;border-color:#528456;}
+.wallpaper-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.wallpaper-choice {padding:7px;border:2px solid transparent;border-radius:16px;background:#f1f3e9;text-align:left;display:grid;gap:6px;}
+.wallpaper-choice[aria-pressed=true] {border-color:#397649;background:#e6efd9;}
+.wallpaper-swatch {display:block;aspect-ratio:16/9;background-size:cover;background-position:center;border-radius:9px;}
+.wallpaper-choice > span:last-child {padding:0 4px 3px;font-size:14px;overflow-wrap:anywhere;}
+.wallpaper-settings .wallpaper-note {font-size:14px;color:var(--menu-muted);margin-top:12px;line-height:1.65;}

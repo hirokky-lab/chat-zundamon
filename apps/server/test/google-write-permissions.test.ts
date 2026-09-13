@@ -1,0 +1,11 @@
+import {it,expect,vi} from 'vitest';
+import {createCipheriv} from 'node:crypto';
+import {createGmailService,GMAIL_SCOPES,GMAIL_WRITE_SCOPE} from '../src/gmail';
+import {createGoogleDriveService,DRIVE_SCOPES,DRIVE_WRITE_SCOPE} from '../src/google-drive';
+const owner={userId:'owner',accessToken:'fixture'},key=Buffer.alloc(32,2);
+for(const [namespace,create,read,write] of [['gmail',createGmailService,GMAIL_SCOPES,GMAIL_WRITE_SCOPE],['drive',createGoogleDriveService,DRIVE_SCOPES,DRIVE_WRITE_SCOPE]] as const){
+ function payload(scopes:readonly string[]){const iv=Buffer.alloc(12,3),c=createCipheriv('aes-256-gcm',key,iv);c.setAAD(Buffer.from('zundamon-'+namespace+':owner'));const b=Buffer.concat([c.update(JSON.stringify({refreshToken:'fixture',subject:'subject',scopes})),c.final()]);return Buffer.concat([iv,c.getAuthTag(),b]).toString('base64');}
+ function setup(){const rpc=vi.fn(async()=>({generation:'one',payload:payload([...read,write])})),http=vi.fn(async()=>Response.json({access_token:'fixture',token_type:'Bearer',scope:[...read,write].join(' ')}));return {rpc,http,service:create({key,clientId:'fixture',clientSecret:'fixture',redirectUri:'https://example.test/callback',rpc,fetch:http})};}
+ it(namespace+' keeps read-only grants separate and requests writes explicitly',async()=>{const t=setup();expect(new URL(await t.service.begin(owner)).searchParams.get('scope')?.split(' ')).not.toContain(write);expect(new URL(await t.service.begin(owner,true)).searchParams.get('scope')?.split(' ')).toContain(write);t.rpc.mockResolvedValue({generation:'one',payload:payload(read)});await expect(t.service.writeAccess!(owner)).rejects.toThrow('write_permission_required');expect(t.http).not.toHaveBeenCalled();});
+ it(namespace+' rejects a changed connection before fetching a token and rejects downgraded token scope',async()=>{const t=setup();t.rpc.mockResolvedValueOnce({generation:'one',payload:payload([...read,write])}).mockResolvedValueOnce({generation:'two',payload:payload([...read,write])});await expect(t.service.writeAccess!(owner)).rejects.toThrow('connection_changed');expect(t.http).not.toHaveBeenCalled();t.http.mockResolvedValue(Response.json({access_token:'fixture',token_type:'Bearer',scope:read.join(' ')}));await expect(t.service.writeAccess!(owner)).rejects.toThrow('write_permission_required');});
+}

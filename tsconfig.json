@@ -1,0 +1,5 @@
+{
+  "extends": "./apps/server/tsconfig.json",
+  "compilerOptions": { "strictNullChecks": true },
+  "include": ["api/**/*.ts", "apps/server/api/**/*.ts", "apps/server/src/**/*.ts"]
+}

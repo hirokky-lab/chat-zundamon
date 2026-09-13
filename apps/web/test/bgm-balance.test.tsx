@@ -1,0 +1,20 @@
+import {fireEvent, render, screen} from '@testing-library/react';
+import {expect, it, vi} from 'vitest';
+import {AppMenu} from '../src/screens/AppMenu';
+import {DEFAULT_BGM} from '../src/bgm/player';
+import type {BgmController} from '../src/bgm/use-bgm';
+it('opens balance settings from the menu and only changes the shared volume', () => {
+  const c:BgmController={settings:{...DEFAULT_BGM,volume:.2,track:'kaeru'},status:'off',error:undefined,update:vi.fn(),retry:vi.fn(),pause:vi.fn()};
+  render(<AppMenu bgm={c} onClose={vi.fn()} onOpenSettings={vi.fn()} onOpenConnections={vi.fn()} onOpenHomeEdit={vi.fn()}/>);
+  fireEvent.click(screen.getByRole('button',{name:'BGM音量バランス'}));
+  expect(screen.getByRole('dialog',{name:'BGM音量バランス'})).toBeVisible();
+  const slider=screen.getByRole('slider');
+  expect(slider).toHaveValue('20');expect(c.update).not.toHaveBeenCalled();
+  fireEvent.change(slider,{target:{value:'15'}});
+  expect(c.update).toHaveBeenLastCalledWith({volume:.15});
+  fireEvent.click(screen.getByRole('button',{name:'標準に戻す'}));
+  expect(c.update).toHaveBeenLastCalledWith({volume:DEFAULT_BGM.volume});
+  fireEvent.click(screen.getByRole('button',{name:'メニューへ戻る'}));
+  expect(screen.getByRole('dialog',{name:'メニュー'})).toBeVisible();
+  expect(c.retry).not.toHaveBeenCalled();expect(c.pause).not.toHaveBeenCalled();
+});

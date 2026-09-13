@@ -1,0 +1,33 @@
+{
+  "name": "zundamon-ai",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "test": "pnpm -r test",
+    "test:web:unit": "pnpm --filter @yui/web exec vitest run --exclude '**/*.visual.test.ts' --exclude '**/photo-preparation.test.ts'",
+    "test:web:browser": "pnpm --filter @yui/web exec vitest run test/current-ui.visual.test.ts test/google-source-selection.visual.test.ts",
+    "setup:app": "node scripts/initial-setup.mjs",
+    "setup:preview": "node scripts/initial-setup.mjs --preview",
+    "test:setup": "node --test scripts/initial-setup.test.mjs",
+    "typecheck": "pnpm -r typecheck",
+    "build": "pnpm --filter @yui/web build",
+    "test:db:photo-incremental": "sh supabase/tests/photo_incremental_migration.sh",
+    "e2e": "playwright test",
+    "dev": "pnpm --parallel --filter @yui/server --filter @yui/web dev",
+    "build:local-live2d": "pnpm --filter @yui/web build --mode local-live2d",
+    "build:connected": "VITE_ZUNDAMON_API_BASE_URL=/ VITE_ZUNDAMON_GOOGLE_LOGIN_ENABLED=true pnpm --filter @yui/web exec vite build --mode local-live2d --outDir dist-connected",
+    "start:connected": "node scripts/start-connected.mjs",
+    "backup:local": "pnpm --filter @yui/server exec vite-node ../../scripts/backup-local.ts",
+    "restore:local": "node scripts/restore-local.mjs",
+    "test:recovery": "node --test scripts/restore-local.test.mjs",
+    "check:public": "node scripts/check-public-source.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "playwright": "1.62.0",
+    "supabase": "2.113.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  }
+}

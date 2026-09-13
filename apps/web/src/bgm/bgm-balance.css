@@ -1,0 +1,8 @@
+.bgm-balance-settings > p {margin:0 0 20px;color:var(--menu-muted);font-size:14px;}
+.bgm-balance-card {padding:20px;border:1px solid var(--menu-border);border-radius:16px;background:#fffefb;}
+.bgm-balance-card label {display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:16px;}
+.bgm-balance-card output {color:var(--menu-muted);white-space:nowrap;}
+.bgm-balance-card input {display:block;width:100%;height:44px;margin:12px 0 0;accent-color:var(--menu-accent);cursor:pointer;}
+.bgm-balance-scale {display:flex;justify-content:space-between;font-size:13px;color:var(--menu-muted);}
+.bgm-balance-card p {font-size:14px;color:var(--menu-muted);margin:20px 0;}
+.bgm-balance-card button {min-height:44px;padding:8px 16px;border:1px solid var(--menu-border);border-radius:14px;background:#edf3e6;color:var(--menu-accent);}

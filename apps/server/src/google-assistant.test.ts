@@ -1,0 +1,34 @@
+import { describe, it, expect } from 'vitest';
+import { createGoogleAssistantService, makeInMemoryGoogleAssistantRepository, type GoogleAssistantProvider } from './google-assistant.js';
+import { LOCAL_USER } from './request-user.js';
+const owner = LOCAL_USER;
+function fixture() { let time = Date.parse('2026-09-05T00:00:00Z'); let calls = 0; let lose = false; let item = { service: 'tasks' as const, sourceId: 'list', id: 'task', version: 'v1', title: 'old' }; const provider: GoogleAssistantProvider = { list: async () => ({ service: 'tasks', sourceId: 'list', fetchedAt: new Date(time).toISOString(), items: [item] }), get: async () => ({ ...item }), write: async (_o, op) => { calls++; item = { ...item, ...op.request.changes, version: 'v2' } as typeof item; if (lose)
+        throw new Error('response lost'); return item; } }; const repository = makeInMemoryGoogleAssistantRepository(); const flags = { calendarRead: true, tasksRead: true, calendarWrite: true, tasksWrite: true }; const create = () => createGoogleAssistantService({ repository, provider, key: Buffer.alloc(32, 8), keyVersion: 'v1', flags, now: () => new Date(time) }); return { service: create(), create, repository, flags, advance: () => time += 300001, lose: () => lose = true, calls: () => calls, change: () => item.version = 'v9' }; }
+const request = { service: 'tasks' as const, sourceId: 'list', action: 'update' as const, itemId: 'task', version: 'v1', changes: { title: 'new' } };
+describe('Google assistant operation boundary', () => {
+    it('prepares without writing and atomically executes once across services sharing storage', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); expect(f.calls()).toBe(0); await Promise.all([f.service.confirm({ owner, operationId: op.operationId, signature: op.signature }), f.create().confirm({ owner, operationId: op.operationId, signature: op.signature })]); expect(f.calls()).toBe(1); expect((await f.service.status({ owner, operationId: op.operationId })).state).toBe('succeeded'); });
+    it('rejects other owner and tampered payload/signature', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); await expect(f.service.confirm({ owner: { ...owner, userId: 'other' }, operationId: op.operationId, signature: op.signature })).rejects.toThrow('not_found'); await expect(f.service.confirm({ owner, operationId: op.operationId, signature: 'x'.repeat(43) })).rejects.toThrow('invalid_signature'); expect(f.calls()).toBe(0); });
+    it('expires and cancels without writing', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); f.advance(); expect((await f.service.confirm({ owner, operationId: op.operationId, signature: op.signature })).state).toBe('expired'); const p = await f.service.prepare({ owner, request }); await f.service.cancel({ owner, operationId: p.operationId }); expect((await f.service.confirm({ owner, operationId: p.operationId, signature: p.signature })).state).toBe('cancelled'); expect(f.calls()).toBe(0); });
+    it('never retries a write whose response was lost even after restart', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); f.lose(); expect((await f.service.confirm({ owner, operationId: op.operationId, signature: op.signature })).state).toBe('unknown'); await f.create().confirm({ owner, operationId: op.operationId, signature: op.signature }); expect(f.calls()).toBe(1); });
+    it('rechecks flags and current version at confirm', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); f.flags.tasksWrite = false; await expect(f.service.confirm({ owner, operationId: op.operationId, signature: op.signature })).rejects.toThrow('unavailable'); f.flags.tasksWrite = true; f.change(); expect((await f.service.confirm({ owner, operationId: op.operationId, signature: op.signature })).state).toBe('conflict'); expect(f.calls()).toBe(0); });
+    it('rejects malformed dates without throwing RangeError', async () => { const f = fixture(); await expect(f.service.prepare({ owner, request: { ...request, changes: { due: '2026-99-99' } } })).rejects.toThrow('invalid_request'); });
+});
+it('signatures survive JSONB key ordering and Unicode input fails closed', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); const r = (await f.repository.get(owner.userId, op.operationId))!; const reverse = (v: any): any => Array.isArray(v) ? v.map(reverse) : v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).reverse().map(([k, x]) => [k, reverse(x)])) : v; const underlying = f.repository.get; f.repository.get = async (o, i) => { const v = await underlying(o, i); return v ? reverse(v) : null; }; await expect(f.service.confirm({ owner, operationId: op.operationId, signature: 'あ'.repeat(43) })).rejects.toThrow('invalid_signature'); expect((await f.service.confirm({ owner, operationId: op.operationId, signature: op.signature })).state).toBe('succeeded'); });
+it('a stale executing record becomes unknown without issuing a write', async () => { const f = fixture(); const op = await f.service.prepare({ owner, request }); await f.repository.transition(owner.userId, op.operationId, 'prepared', 'executing'); f.advance(); f.advance(); expect((await f.create().status({ owner, operationId: op.operationId })).state).toBe('unknown'); expect(f.calls()).toBe(0); });
+
+it('calendar deletion is a signed confirmation, executes once and rejects changed targets',async()=>{
+ const repository=makeInMemoryGoogleAssistantRepository();
+ const item={service:'calendar' as const,sourceId:'primary',id:'event',version:'v1',title:'テスト予定',start:'2026-09-10T01:00:00Z',end:'2026-09-10T02:00:00Z'};
+ let deletes=0;
+ const service=createGoogleAssistantService({repository,provider:{list:async()=>{throw Error()},get:async()=>item,write:async()=>{throw Error()},remove:async()=>{deletes++;}} as any,key:Buffer.alloc(32,8),keyVersion:'v1',flags:{calendarRead:true,calendarWrite:true,tasksRead:false,tasksWrite:false}});
+ const op=await service.prepare({owner,request:{service:'calendar',sourceId:'primary',action:'delete',itemId:'event',version:'v1',changes:{}} as any});
+ expect(deletes).toBe(0);
+ const result=await service.confirm({owner,operationId:op.operationId,signature:op.signature});
+ expect(result.state).toBe('succeeded');
+ await service.confirm({owner,operationId:op.operationId,signature:op.signature});
+ expect(deletes).toBe(1);
+ const other=await service.prepare({owner,request:{service:'calendar',sourceId:'primary',action:'delete',itemId:'event',version:'v1',changes:{}} as any});
+ item.version='v2';
+ expect((await service.confirm({owner,operationId:other.operationId,signature:other.signature})).state).toBe('conflict');
+ expect(deletes).toBe(1);
+});

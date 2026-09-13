@@ -1,0 +1,2 @@
+import {defineConfig} from 'playwright/test';
+export default defineConfig({testDir:'.',testMatch:'talk-life-services.spec.ts',workers:1,retries:0,timeout:45000,outputDir:'../test-results/talk-life-services/traces',use:{baseURL:'http://127.0.0.1:4324',viewport:{width:390,height:844},timezoneId:'Asia/Tokyo',trace:'retain-on-failure',browserName:'chromium'},webServer:{cwd:'..',command:'./apps/web/node_modules/.bin/vite apps/web --host 127.0.0.1 --port 4324',url:'http://127.0.0.1:4324',reuseExistingServer:false,timeout:30000}});

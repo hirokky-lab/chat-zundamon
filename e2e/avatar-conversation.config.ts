@@ -1,0 +1,3 @@
+import { defineConfig } from 'playwright/test';
+const port=Number(process.env.YUI_ZUNDAMON_E2E_PORT??'4336');
+export default defineConfig({ testDir: '.', testMatch: 'avatar-conversation.spec.ts', workers: 1, retries: 0, timeout: 45000, outputDir: '../test-results/zundamon/traces', use: { baseURL: `http://127.0.0.1:${port}`, viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true, browserName: 'chromium', trace: 'retain-on-failure' }, webServer: { cwd: '..', command: `./apps/web/node_modules/.bin/vite apps/web --host 127.0.0.1 --port ${port}`, url: `http://127.0.0.1:${port}`, reuseExistingServer: false, timeout: 30000 } });

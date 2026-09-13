@@ -1,0 +1,11 @@
+{
+  "name": "@yui/domain",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit --target ES2022 --module ESNext --moduleResolution Bundler --strict src/index.ts"
+  }
+}

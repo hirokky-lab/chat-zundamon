@@ -1,0 +1,118 @@
+.character-settings {
+  color: #29412d;
+}
+.character-settings section {
+  margin-top: 28px;
+}
+.character-settings h2 {
+  font-size: 18px;
+}
+.character-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.character-options button,
+.character-faces button,
+.character-file-button,
+.character-settings > button,
+.character-settings section > button {
+  border: 1px solid #cdddc4;
+  background: #fffefa;
+  color: #29412d;
+  border-radius: 16px;
+  padding: 12px 16px;
+  font: inherit;
+  cursor: pointer;
+}
+.character-options button {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.character-options span,
+.character-note {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--menu-muted, #667b5f);
+}
+.character-settings button[aria-pressed="true"] {
+  background: #e2efd5;
+  border-color: #78966e;
+}
+.character-settings button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.character-settings a {
+  color: var(--menu-accent, #398344);
+}
+.character-faces {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+.character-preview {
+  height: clamp(160px, 32svh, 300px);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border: 1px solid #d2dfc9;
+  border-radius: 22px;
+  background: linear-gradient(150deg, #f1f6e9, #fcfaf0);
+  overflow: hidden;
+}
+.character-preview .live2d-avatar-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  margin: 0;
+}
+.character-preview canvas,
+.character-preview .live2d-avatar-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+/* The VRM camera centers its own model; Live2D's artwork correction is not needed. */
+:root:root:root:root:root
+  #root
+  .chat-screen.avatar-conversation
+  .vrm-avatar-stage
+  .live2d-avatar-canvas {
+  transform: scale(var(--avatar-default-scale));
+  transform-origin: center top;
+}
+
+.character-storage {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--border, #d6dfcc);
+  border-radius: 16px;
+}
+.character-storage label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.character-storage input {
+  accent-color: #78966e;
+}
+
+.character-settings section > button { margin: 4px 8px 4px 0; }
+
+.character-detail-links button > span {display:flex;flex-direction:column;gap:4px;min-width:0;}
+.character-detail-links button > svg {flex-shrink:0;}
+.character-detail-links button {text-align:left;}
+.vrm-model-settings > section:first-child {margin-top:0;}

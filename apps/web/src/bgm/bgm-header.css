@@ -1,0 +1,14 @@
+.bgm-header {display:contents;}
+/* Scope to the header to avoid inheriting generic chat/button styles. */
+#root .chat-header .bgm-header-trigger {display:grid;place-items:center;width:44px;min-width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--header-control-ink,#337b46);}
+#root .chat-header .bgm-popover {position:absolute;top:calc(100% + 12px);left:50%;transform:translateX(-50%);width:min(300px,calc(100vw - 32px));box-sizing:border-box;padding:8px 16px 10px;border:1px solid #dbe5d3;border-radius:22px;background:var(--bgm-surface,rgb(255 255 251 / 97%));color:var(--stage-speech-ink,#29412d);box-shadow:0 8px 28px #253c271a;z-index:10;}
+.bgm-popover::before {content:"";position:absolute;top:-7px;left:calc(50% + 39px);width:12px;height:12px;transform:rotate(45deg);background:#fffffb;border-left:1px solid #dbe5d3;border-top:1px solid #dbe5d3;}
+.bgm-popover-heading {display:flex;align-items:center;justify-content:space-between;min-height:36px;color:#70846d;font-size:13px;font-weight:600;}
+#root .chat-header .bgm-close {display:grid;place-items:center;width:44px;height:44px;min-height:44px;margin-right:-10px;padding:0;background:transparent;border:0;border-radius:12px;color:var(--header-control-ink,#337b46);}
+.bgm-popover-track {display:flex;align-items:center;gap:12px;}
+.bgm-track-select {position:relative;min-width:0;flex:1;}
+#root .chat-header .bgm-track-select select {appearance:none;box-sizing:border-box;min-height:44px;width:100%;padding:4px 24px 4px 0;border:0;border-radius:6px;background:transparent;color:var(--stage-speech-ink,#29412d);font:inherit;font-size:18px;font-weight:600;cursor:pointer;}
+.bgm-track-select > svg {position:absolute;right:0;top:50%;transform:translateY(-50%);pointer-events:none;}
+#root .chat-header .bgm-playback {display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:#337b46;color:white;}
+#root .chat-header .bgm-popover-status {margin:2px 0 4px;padding:0;font-size:12px;line-height:1.5;color:var(--bgm-muted,#5b7059);}
+.bgm-popover :is(button,select,input):focus-visible,.bgm-header-trigger:focus-visible {outline:2px solid #337b46;outline-offset:3px;}

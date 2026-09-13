@@ -1,0 +1,2 @@
+import {defineConfig} from 'playwright/test';
+export default defineConfig({testDir:'.',testMatch:'sakura-speech.spec.ts',workers:1,retries:0,use:{browserName:'webkit',baseURL:'http://127.0.0.1:4338',viewport:{width:390,height:844},isMobile:true,hasTouch:true},webServer:{cwd:'..',command:'./apps/web/node_modules/.bin/vite apps/web --host 127.0.0.1 --port 4338',url:'http://127.0.0.1:4338',reuseExistingServer:false}});

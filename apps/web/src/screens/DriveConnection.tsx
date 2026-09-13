@@ -1,0 +1,9 @@
+import {useEffect,useState} from 'react';
+import {GoogleDriveLogo} from '@phosphor-icons/react';
+import type {DriveApi} from '../google-drive';
+export function DriveConnection({api,navigate}:{api?:DriveApi;navigate:(url:string)=>void}){
+ const [status,setStatus]=useState<{connected:boolean;available:boolean;writeEnabled?:boolean}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[confirm,setConfirm]=useState(false);
+ useEffect(()=>{let active=true;if(api)api.status().then(s=>{if(active)setStatus(s);}).catch(()=>{if(active)setError('Driveの接続状態を確認できませんでした。');});return()=>{active=false;};},[api]);
+ async function run(fn:()=>Promise<void>){if(busy)return;setBusy(true);setError('');try{await fn();}catch{setError('Driveの接続を確認できませんでした。もう一度お試しください。');}finally{setBusy(false);}}
+ return <section className="google-connection-card"><div className="google-connection-title"><GoogleDriveLogo size={26}/><div><h2>Google Drive</h2><span>{!api?'準備中':!status?'接続状態を確認中':status.connected?'接続済み':status.available?'未接続':'準備中'}</span></div></div><p>Drive全体からファイルを検索し、Googleドキュメント・テキスト・文字入りPDFの内容を確認します。</p>{status?.connected?<>{!status.writeEnabled&&<button className="google-connect-action" disabled={busy} onClick={()=>void run(async()=>navigate(await api!.connect(true)))}>ファイル保存を有効にする</button>}<p>トークで「Driveで○○を探して」と話しかけてください。</p>{confirm?<div><p>Driveとの接続を解除しますか？ファイルは削除されません。</p><button disabled={busy} onClick={()=>void run(async()=>{await api!.disconnect();setStatus(await api!.status());setConfirm(false);})}>Driveの接続を解除する</button><button disabled={busy} onClick={()=>setConfirm(false)}>キャンセル</button></div>:<button className="google-disconnect" onClick={()=>setConfirm(true)}>Driveの接続を解除</button>}</>:<button className="google-connect-action" disabled={busy||!status?.available} onClick={()=>void run(async()=>navigate(await api!.connect()))}>{busy?'Googleを開いています…':'Google Driveを接続'}</button>}{error&&<p role="alert">{error}</p>}</section>;
+}

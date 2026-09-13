@@ -1,0 +1,9 @@
+.ai-connection form {display:grid;gap:12px;margin-top:24px;}
+.ai-connection label {font-weight:600;}
+.ai-connection input {width:100%;min-width:0;box-sizing:border-box;border:1px solid #b7cbb3;border-radius:12px;padding:14px;background:#fff;color:#253b2a;font:inherit;font-size:16px;}
+.ai-connection a {color:#387849;text-underline-offset:4px;font-size:0.9em;width:fit-content;}
+.ai-connection .ai-secondary {border:1px solid #b7cbb3;border-radius:12px;background:transparent;color:inherit;font:inherit;padding:12px 18px;}
+.ai-connection button:disabled {opacity:.5;cursor:default;}
+.ai-connection [role=alert] {color:#9c3434;}
+.ai-connection [role=status] {color:#30643d;}
+.ai-connection h1:focus {outline:none;}

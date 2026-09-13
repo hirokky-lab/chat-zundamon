@@ -1,0 +1,21 @@
+{
+  "apps/web/public/apple-touch-icon.png": "814506cc995e7a0043ea63068aa3a99d5fa40b2ce6db174e263ed51f2eb7c0cf",
+  "apps/web/public/backgrounds/edamame-pink-day-v2.png": "21b525af8d10bc13a9df8f4d6501369de27352bf72938e7865400a17b74a54d6",
+  "apps/web/public/backgrounds/edamame-pink-night-v2.png": "1d51de219e88c6d39a87ee33a6e1b88a4120de5a5e7dde1d9d32650775bf8b05",
+  "apps/web/public/backgrounds/edamame-sky-day-v2.png": "acf1506e88a01b669af5d9f0aba34d8a7930db5aad217224a7c28c559f71c9e2",
+  "apps/web/public/backgrounds/edamame-sky-night-v2.png": "681b9668d766118072cab7b00e76dd6e81ea6d088f2cea36dc841006dfd63aa6",
+  "apps/web/public/backgrounds/onboarding-leaves.svg": "996d7eca77cc2766e7774f23a57e36d7c1a167d15ef76b15c9ec5bd2f9bc16f5",
+  "apps/web/public/characters/zundamon/name-jaw-tilt.png": "03043aaa36f012beffd0b85bd252ac7af72665a268a189f7159fc9b9c18519ae",
+  "apps/web/public/characters/zundamon/sakamoto-ahiru-welcome.png": "03043aaa36f012beffd0b85bd252ac7af72665a268a189f7159fc9b9c18519ae",
+  "apps/web/public/characters/zundamon/sakamoto-ahiru.png": "03043aaa36f012beffd0b85bd252ac7af72665a268a189f7159fc9b9c18519ae",
+  "apps/web/public/favicon.ico": "c65e9935a10a2d5ab775dbb433822fef5332b1a3b102b880baf801fb78602c7f",
+  "apps/web/public/icons/zundamon-16-v2.png": "3002489f82d58af56487979c780be6996900a2a87bdcc91f645759b600d82d0e",
+  "apps/web/public/icons/zundamon-180-v2.png": "814506cc995e7a0043ea63068aa3a99d5fa40b2ce6db174e263ed51f2eb7c0cf",
+  "apps/web/public/icons/zundamon-192-v2.png": "c4bfe3a7f57339fb6f897d0e6beffd12cb138c809991ee2648f21dbc7e3f5fcb",
+  "apps/web/public/icons/zundamon-32-v2.png": "d90ab3580e74aad9140fffb690cfdb47188395998968070b45cedabeef1a75ca",
+  "apps/web/public/icons/zundamon-48-v2.png": "c66aaf69af923d7ce034dcf33374b015aae7c291eb7b914de4d60d10be333de1",
+  "apps/web/public/icons/zundamon-512-v2.png": "bb791771b41986ce31b1d56b61e510f9475ddaeff2ac41588eaf9c2e8b50c0de",
+  "apps/web/public/icons/zundamon-master-v2.png": "4badba58318580ebcb5ad99bdbfe6570034e2c0b35e72a4f38a98f3d463eca18",
+  "apps/web/public/phone-handset.svg": "9a5377934e99d0f809e2c78441bcde45b2ad006584bba8688d3e24252841867a",
+  "apps/web/public/zundamon-placeholder.svg": "abffa226b24ced5ecc540b4cc1b4ac5e5233b25c074c615e04a69a63da0c44cf"
+}

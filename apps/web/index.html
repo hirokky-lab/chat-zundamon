@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#f7f9f2" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Chatずんだもん" />
+    <link rel="manifest" href="/manifest.webmanifest?v=20260913-chat-zundamon-name-2" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/zundamon-32-v2.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/zundamon-16-v2.png" />
+    <link rel="shortcut icon" href="/favicon.ico?v=20260913-2" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/zundamon-180-v2.png" />
+    <script src="/wallpaper-bootstrap.js"></script>
+    <script src="/wallpaper-viewport.js"></script>
+    <style>
+      html { min-height:100%; background:var(--room-background,url("/backgrounds/edamame-sky-day-v2.png")) var(--room-position,center) / var(--room-size,cover) var(--room-repeat,no-repeat) var(--wallpaper-color,#f7f4ea); background-attachment:fixed; }
+      body { margin:0; min-height:100dvh; isolation:isolate; }
+      #wallpaper-backdrop { position:absolute; top:0; left:0; right:0; height:var(--wallpaper-height,100lvh); min-height:100lvh; z-index:-1; pointer-events:none; background:var(--room-background,url("/backgrounds/edamame-sky-day-v2.png")) var(--room-position,center) / var(--room-size,cover) var(--room-repeat,no-repeat) var(--wallpaper-color,#f7f4ea); }
+    </style>
+    <title>Chatずんだもん</title>
+  </head>
+  <body>
+    <div id="wallpaper-backdrop" aria-hidden="true"></div>
+    <div id="root"></div>
+    <script>
+      (() => {
+        try {
+          const style = localStorage.getItem("zundamon-ai.visual-style.v1");
+          document.documentElement.dataset.yuiStyle = style === "minimal" ? "minimal" : "yui";
+        } catch {
+          document.documentElement.dataset.yuiStyle = "yui";
+        }
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

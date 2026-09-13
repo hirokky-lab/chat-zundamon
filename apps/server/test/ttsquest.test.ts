@@ -1,0 +1,8 @@
+import {it,expect,vi} from 'vitest';
+import {createTtsQuestGateway} from '../src/ttsquest';
+const root='https://audio1.tts.quest/v1/data/'+ 'a'.repeat(64)+'/';
+const response=()=>Response.json({success:true,audioStatusUrl:root+'status.json',wavDownloadUrl:root+'audio.wav'});
+it('downloads validated audio and sends text in POST body',async()=>{const wav=Buffer.alloc(44);wav.write('RIFF');wav.write('WAVE',8);const f=vi.fn<typeof fetch>().mockResolvedValueOnce(response()).mockResolvedValueOnce(Response.json({isAudioReady:true})).mockResolvedValueOnce(new Response(wav));expect(await createTtsQuestGateway(f).speak('こんにちは')).toEqual(wav);expect(f.mock.calls[0][1]?.method).toBe('POST');expect(String(f.mock.calls[0][0])).not.toContain('こんにちは');});
+it('rejects arbitrary upstream URLs before fetching them',async()=>{const f=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({success:true,audioStatusUrl:'http://127.0.0.1/secret',wavDownloadUrl:root+'audio.wav'}));await expect(createTtsQuestGateway(f).speak('こんにちは')).rejects.toThrow();expect(f).toHaveBeenCalledTimes(1);});
+it('honors retryAfter without re-sending synthesis',async()=>{const f=vi.fn<typeof fetch>().mockResolvedValueOnce(Response.json({success:false,retryAfter:60}));const gateway=createTtsQuestGateway(f);await expect(gateway.speak('こんにちは')).rejects.toThrow('speech_rate_limited');await expect(gateway.speak('こんにちは')).rejects.toThrow('speech_rate_limited');expect(f).toHaveBeenCalledTimes(1);});
+it('does not send cancelled queued text',async()=>{const f=vi.fn<typeof fetch>(),controller=new AbortController();controller.abort();await expect(createTtsQuestGateway(f).speak('こんにちは',controller.signal)).rejects.toThrow();expect(f).not.toHaveBeenCalled();});

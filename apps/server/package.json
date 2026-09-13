@@ -1,0 +1,29 @@
+{
+  "name": "@yui/server",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite-node --watch src/main.ts",
+    "start:hosted": "vite-node src/server.ts",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.3.0",
+    "@fastify/multipart": "^10.1.0",
+    "@supabase/supabase-js": "^2.112.2",
+    "@vercel/blob": "^2.7.0",
+    "@yui/domain": "workspace:*",
+    "fastify": "^5.6.1",
+    "html-to-text": "^10.0.1",
+    "jpeg-js": "0.4.4",
+    "openai": "^6.11.0",
+    "pdfjs-dist": "^6.3.289",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/html-to-text": "^9.0.4",
+    "vite-node": "3.2.4"
+  }
+}
